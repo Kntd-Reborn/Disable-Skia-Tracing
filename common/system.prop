@@ -3,3 +3,5 @@
 # Please give credit if u using any parts of my modules!
 # go to @kntdreborn (telegram) for more details!
 
+# Disable Skia Tracing
+debug.hwui.skia_atrace_enabled=false
