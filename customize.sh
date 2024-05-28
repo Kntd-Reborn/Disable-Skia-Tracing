@@ -1,36 +1,70 @@
-# Module mounting purposes, should be false to mounting.
-SKIPMOUNT=false
-# Set to true if use system.prop
-PROPFILE=true
-# Set to true if use post-fs-data.sh
-POSTFSDATA=false
-# Set to true if use service.sh
-LATESTARTSERVICE=false
+##########################################################################################
+#
+# MMT Extended Config Script
+#
+##########################################################################################
 
-# Set what you want to display when installing your module
+##########################################################################################
+# Config Flags
+##########################################################################################
 
-print_modname() {
-ui_print ""
-ui_print "[-] Disable Skia Tracing"
-ui_print ""
-ui_print "[-] @kntdreborn - Telegram Channel"
-ui_print "To get more details what this module do."
-}
+# Uncomment and change 'MINAPI' and 'MAXAPI' to the minimum and maximum android version for your mod
+# Uncomment DYNLIB if you want libs installed to vendor for oreo+ and system for anything older
+# Uncomment PARTOVER if you have a workaround in place for extra partitions in regular magisk install (can mount them yourself - you will need to do this each boot as well). If unsure, keep commented
+# Uncomment PARTITIONS and list additional partitions you will be modifying (other than system and vendor), for example: PARTITIONS="/odm /product /system_ext"
+#MINAPI=21
+#MAXAPI=25
+#DYNLIB=true
+#PARTOVER=true
+#PARTITIONS=""
 
-# Copy/extract your module files into $MODPATH in on_install.
+##########################################################################################
+# Replace list
+##########################################################################################
 
-on_install() {
-  # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
-  # Extend/change the logic to whatever you want
-  ui_print "- Extracting module files"
-  unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
-}
+# List all directories you want to directly replace in the system
+# Check the documentations for more info why you would need this
 
-# Only some special files require specific permissions
-# This function will be called after on_install is done
-# The default permissions should be good enough for most cases
+# Construct your list in the following format
+# This is an example
+REPLACE_EXAMPLE="
+/system/app/Youtube
+/system/priv-app/SystemUI
+/system/priv-app/Settings
+/system/framework
+"
+
+# Construct your own list here
+REPLACE="
+"
+
+##########################################################################################
+# Permissions
+##########################################################################################
 
 set_permissions() {
-  # The following is the default rule, DO NOT remove
-  set_perm_recursive $MODPATH 0 0 0755 0644
+  : # Remove this if adding to this function
+
+  # Note that all files/folders in magisk module directory have the $MODPATH prefix - keep this prefix on all of your files/folders
+  # Some examples:
+  
+  # For directories (includes files in them):
+  # set_perm_recursive  <dirname>                <owner> <group> <dirpermission> <filepermission> <contexts> (default: u:object_r:system_file:s0)
+  
+  # set_perm_recursive $MODPATH/system/lib 0 0 0755 0644
+  # set_perm_recursive $MODPATH/system/vendor/lib/soundfx 0 0 0755 0644
+
+  # For files (not in directories taken care of above)
+  # set_perm  <filename>                         <owner> <group> <permission> <contexts> (default: u:object_r:system_file:s0)
+  
+  # set_perm $MODPATH/system/lib/libart.so 0 0 0644
+  # set_perm /data/local/tmp/file.txt 0 0 644
 }
+
+##########################################################################################
+# MMT Extended Logic - Don't modify anything after this
+##########################################################################################
+
+SKIPUNZIP=1
+unzip -qjo "$ZIPFILE" 'common/functions.sh' -d $TMPDIR >&2
+. $TMPDIR/functions.sh
